@@ -10,41 +10,20 @@ import SwiftUI
 struct ContentView: View {
     private let die = 6
     @State private var rotation = 0.0
-    @State private var roll = 0
+    @State private var array: [Int]
     
-    private static let frames = 20
-        
-    func rollDie() -> Int {
-        Int.random(in: 1...die)
+    init() {
+        array = [Int](1...die).shuffled()
     }
     
     var body: some View {
-        DieView(die: die, rotation: rotation, roll: roll)
+        DieView(die: die, rotation: rotation, array: array)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
             .onTapGesture {
-                let actualRoll = rollDie()
-                
-                // Roll animation
-                for i in 1...Self.frames {
-                    let delay = Double(i * i) / Double(Self.frames) / 10.0
-                    print(delay)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                        var animationRoll = roll
-                        while animationRoll == roll {
-                            animationRoll = rollDie()
-                        }
-                        if i == Self.frames {
-                            roll = actualRoll
-                        } else {
-                            roll = animationRoll
-                        }
-                    }
-                }
-                
-                // Rotate animation
+                array.shuffle()
                 rotation = 0
-                withAnimation(.easeOut(duration: 2.3)) {
+                withAnimation(.easeOut(duration: 2)) {
                     rotation = 1
                 }
             }
