@@ -45,27 +45,30 @@ struct DieView: View {
         }
     }
     
+    func dieSide(offset: Bool = false) -> some View {
+        Rectangle()
+            .fill(Color.gray)
+            .frame(width: size, height: size)
+            .modifier(DieLabel(die: die, rotation: rotation, array: array, size: size, offset: offset))
+            .animation(rotation == 0 ? nil : .easeOut(duration: 2))
+            .overlay(
+                (offset ? Color.black : Color.white)
+                    .opacity(rotation * (offset ? 1 : -1) * 0.5 + (offset ? 0 : 0.5))
+            )
+            .rotation3DEffect(
+                .degrees(rotation * 90 - (offset ? 0 : 90)),
+                axis: (x: 0, y: 1, z: 0),
+                anchor: offset ? .leading : .trailing,
+                anchorZ: 0, perspective: 1
+            )
+            .offset(x: rotation * size - (offset ? 0 : size))
+            .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
+    }
+    
     var body: some View {
         ZStack {
-            Rectangle()
-                .fill(Color.gray)
-                .frame(width: size, height: size)
-                .modifier(DieLabel(die: die, rotation: rotation, array: array, size: size, offset: true))
-                .animation(rotation == 0 ? nil : .easeOut(duration: 2))
-                .overlay(Color.black.opacity(rotation * 0.5))
-                .rotation3DEffect(.degrees(rotation * 90), axis: (x: 0, y: 1, z: 0), anchor: .leading, anchorZ: 0, perspective: 1)
-                .offset(x: rotation * size)
-                .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
-
-            Rectangle()
-                .fill(Color.gray)
-                .frame(width: size, height: size)
-                .modifier(DieLabel(die: die, rotation: rotation, array: array, size: size))
-                .animation(rotation == 0 ? nil : .easeOut(duration: 2))
-                .overlay(Color.white.opacity(rotation * -0.5 + 0.5))
-                .rotation3DEffect(.degrees(rotation * 90 - 90), axis: (x: 0, y: 1, z: 0), anchor: .trailing, anchorZ: 0, perspective: 1)
-                .offset(x: rotation * size - size)
-                .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
+            dieSide(offset: true)
+            dieSide()
         }
     }
 }
