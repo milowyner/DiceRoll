@@ -9,9 +9,14 @@ import SwiftUI
 
 struct DieView: View {
     let die: Int
-    let rotation: Double
-    let array: [Int]
+    @State private var rotation = 0.0
+    @State private var array: [Int]
     private let size: CGFloat = 100
+    
+    init(die: Int) {
+        self.die = die
+        array = [Int](1...die).shuffled()
+    }
     
     private struct DieLabel: AnimatableModifier {
         let die: Int
@@ -66,9 +71,21 @@ struct DieView: View {
     }
     
     var body: some View {
-        ZStack {
-            dieSide(offset: true)
-            dieSide()
+        NavigationView {
+            ZStack {
+                dieSide(offset: true)
+                dieSide()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                array.shuffle()
+                rotation = 0
+                withAnimation {
+                    rotation = 1
+                }
+            }
+            .navigationTitle("Dice Roll")
         }
     }
 }

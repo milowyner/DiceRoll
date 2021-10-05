@@ -9,24 +9,21 @@ import SwiftUI
 
 struct ContentView: View {
     private let die = 6
-    @State private var rotation = 0.0
-    @State private var array: [Int]
-    
-    init() {
-        array = [Int](1...die).shuffled()
-    }
     
     var body: some View {
-        DieView(die: die, rotation: rotation, array: array)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                array.shuffle()
-                rotation = 0
-                withAnimation {
-                    rotation = 1
+        TabView {
+            DieView(die: die)
+                .tabItem {
+                    Image(systemName: "die.face.3")
+                    Text("Roll")
                 }
-            }
+            
+            Text("Hello")
+                .tabItem {
+                    Image(systemName: "dice")
+                    Text("Previous")
+                }
+        }
     }
 }
 
