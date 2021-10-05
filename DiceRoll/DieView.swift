@@ -51,17 +51,21 @@ struct DieView: View {
                 .fill(Color.gray)
                 .frame(width: size, height: size)
                 .modifier(DieLabel(die: die, rotation: rotation, array: array, size: size, offset: true))
+                .animation(rotation == 0 ? nil : .easeOut(duration: 2))
                 .overlay(Color.black.opacity(rotation * 0.5))
                 .rotation3DEffect(.degrees(rotation * 90), axis: (x: 0, y: 1, z: 0), anchor: .leading, anchorZ: 0, perspective: 1)
                 .offset(x: rotation * size)
+                .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
 
             Rectangle()
                 .fill(Color.gray)
                 .frame(width: size, height: size)
                 .modifier(DieLabel(die: die, rotation: rotation, array: array, size: size))
+                .animation(rotation == 0 ? nil : .easeOut(duration: 2))
                 .overlay(Color.white.opacity(rotation * -0.5 + 0.5))
                 .rotation3DEffect(.degrees(rotation * 90 - 90), axis: (x: 0, y: 1, z: 0), anchor: .trailing, anchorZ: 0, perspective: 1)
                 .offset(x: rotation * size - size)
+                .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
         }
     }
 }

@@ -23,7 +23,7 @@ struct ContentView: View {
             .onTapGesture {
                 array.shuffle()
                 rotation = 0
-                withAnimation(.easeOut(duration: 2)) {
+                withAnimation {
                     rotation = 1
                 }
             }
