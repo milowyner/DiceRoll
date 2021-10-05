@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct DieView: View {
-    let die: Int
+    let sides: Int
     @State private var rotation = 0.0
     @State private var array: [Int]
     private let size: CGFloat = 100
     
-    init(die: Int) {
-        self.die = die
-        array = [Int](1...die).shuffled()
+    init(sides: Int) {
+        self.sides = sides
+        array = [Int](1...sides).shuffled()
     }
     
-    private struct DieLabel: AnimatableModifier {
-        let die: Int
+    private struct SideLabel: AnimatableModifier {
+        let sides: Int
         var rotation: Double
         let array: [Int]
         let size: CGFloat
@@ -31,12 +31,12 @@ struct DieView: View {
         }
         
         private var roll: Int {
-            return array[Int(rotation * 15.5 + (offset ? 1 : 0)) % die]
+            return array[Int(rotation * 15.5 + (offset ? 1 : 0)) % sides]
         }
         
         func body(content: Content) -> some View {
-            content
-                .overlay(
+            if sides <= 6 {
+                content.overlay(
                     Image(systemName: "die.face.\(roll).fill")
                         .resizable()
                         .frame(width: size, height: size)
@@ -47,14 +47,25 @@ struct DieView: View {
                                 .frame(width: size * 0.75, height: size * 0.75)
                         )
                 )
+            } else {
+                content.overlay(
+                    Text("\(roll)")
+                        .font(.system(size: 60))
+                        .minimumScaleFactor(0.5)
+                        .allowsTightening(true)
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .animation(nil)
+                )
+            }
         }
     }
     
-    func dieSide(offset: Bool = false) -> some View {
+    func sideView(offset: Bool = false) -> some View {
         Rectangle()
             .fill(Color.gray)
             .frame(width: size, height: size)
-            .modifier(DieLabel(die: die, rotation: rotation, array: array, size: size, offset: offset))
+            .modifier(SideLabel(sides: sides, rotation: rotation, array: array, size: size, offset: offset))
             .animation(rotation == 0 ? nil : .easeOut(duration: 2))
             .overlay(
                 (offset ? Color.black : Color.white)
@@ -71,10 +82,10 @@ struct DieView: View {
     }
     
     var body: some View {
-        NavigationView {
+//        NavigationView {
             ZStack {
-                dieSide(offset: true)
-                dieSide()
+                sideView(offset: true)
+                sideView()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
@@ -86,7 +97,7 @@ struct DieView: View {
                 }
             }
             .navigationTitle("Dice Roll")
-        }
+//        }
     }
 }
 

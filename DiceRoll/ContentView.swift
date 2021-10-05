@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    private let die = 6
+    private let sides = 6
     
     var body: some View {
         TabView {
-            DieView(die: die)
+            DieView(sides: sides)
                 .tabItem {
                     Image(systemName: "die.face.3")
                     Text("Roll")
