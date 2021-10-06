@@ -12,11 +12,16 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-            DieView(sides: sides)
-                .tabItem {
-                    Image(systemName: "die.face.3")
-                    Text("Roll")
+            NavigationView {
+                VStack {
+                    DieView(sides: sides)
                 }
+                .navigationTitle("Dice Roll")
+            }
+            .tabItem {
+                Image(systemName: "die.face.3")
+                Text("Roll")
+            }
             
             Text("Hello")
                 .tabItem {

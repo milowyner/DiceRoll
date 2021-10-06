@@ -31,7 +31,9 @@ struct DieView: View {
         }
         
         private var roll: Int {
-            return array[Int(rotation * 15.5 + (offset ? 1 : 0)) % sides]
+            var index = Int(rotation * 15.5 + (offset ? 1 : 0)) % sides
+            if index < 0 { index = 0 }
+            return array[index]
         }
         
         func body(content: Content) -> some View {
@@ -40,20 +42,21 @@ struct DieView: View {
                     Image(systemName: "die.face.\(roll).fill")
                         .resizable()
                         .frame(width: size, height: size)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.white)
                         .background(
                             Rectangle()
-                                .foregroundColor(.white)
+                                .foregroundColor(Color(white: 0.2))
                                 .frame(width: size * 0.75, height: size * 0.75)
                         )
                 )
+                    .shadow(color: .clear, radius: 0)
             } else {
                 content.overlay(
                     Text("\(roll)")
-                        .font(.system(size: 60))
+                        .font(.system(size: 60, weight: .semibold, design: .rounded))
                         .minimumScaleFactor(0.5)
                         .allowsTightening(true)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(white: 0.2))
                         .padding(8)
                         .animation(nil)
                 )
@@ -63,14 +66,12 @@ struct DieView: View {
     
     func sideView(offset: Bool = false) -> some View {
         Rectangle()
-            .fill(Color.gray)
+            .fill(.white)
             .frame(width: size, height: size)
             .modifier(SideLabel(sides: sides, rotation: rotation, array: array, size: size, offset: offset))
             .animation(rotation == 0 ? nil : .easeOut(duration: 2))
-            .overlay(
-                (offset ? Color.black : Color.white)
-                    .opacity(rotation * (offset ? 1 : -1) * 0.5 + (offset ? 0 : 0.5))
-            )
+            .overlay(offset ? Color.black.opacity(rotation * 0.25)
+                     : Color.white.opacity(rotation * -0.5 + 0.5))
             .rotation3DEffect(
                 .degrees(rotation * 90 - (offset ? 0 : 90)),
                 axis: (x: 0, y: 1, z: 0),
@@ -81,23 +82,43 @@ struct DieView: View {
             .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
     }
     
+    // Used to make the die not appear to shrink when rotating
+    private struct ScaleEffect: GeometryEffect {
+        var scale: Double
+        
+        var animatableData: CGFloat {
+            get { scale }
+            set { scale = newValue }
+        }
+        
+        func effectValue(size: CGSize) -> ProjectionTransform {
+            let scale = -pow(scale - 0.5, 2) + 1.25
+            let offset = size.width / 2
+            let transform = CGAffineTransform(translationX: offset, y: offset)
+                .scaledBy(x: scale, y: scale)
+                .translatedBy(x: -offset, y: -offset)
+            return ProjectionTransform(transform)
+        }
+    }
+    
     var body: some View {
-//        NavigationView {
-            ZStack {
-                sideView(offset: true)
-                sideView()
+        ZStack {
+            sideView(offset: true)
+            sideView()
+        }
+        // Uncomment these to make the die not appear to shrink when rotating
+//        .modifier(ScaleEffect(scale: rotation))
+//        .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
+        .shadow(color: Color(white: 0.5), radius: 70, x: size / 2, y: size / 4)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            array.shuffle()
+            rotation = 0
+            withAnimation {
+                rotation = 1
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                array.shuffle()
-                rotation = 0
-                withAnimation {
-                    rotation = 1
-                }
-            }
-            .navigationTitle("Dice Roll")
-//        }
+        }
     }
 }
 
