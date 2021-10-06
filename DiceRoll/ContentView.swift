@@ -17,7 +17,7 @@ struct ContentView: View {
                 VStack {
                     DieView(sides: sides, completed: $completed) { roll in
                         if !completed {
-                            print("complete", roll)
+                            UINotificationFeedbackGenerator().notificationOccurred(.success)
                             completed = true
                         }
                     }
