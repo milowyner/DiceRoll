@@ -6,17 +6,22 @@
 //
 
 import SwiftUI
+import CoreHaptics
 
 struct DieView: View {
     let sides: Int
     @State private var rotation = 0.0
     @State private var array: [Int]
+    var hapticsEnabled: Bool
     @Binding var completed: Bool
     let onComplete: (Int) -> Void
-    private let size: CGFloat = 100
     
-    init(sides: Int, completed: Binding<Bool>, onComplete: @escaping (Int) -> Void = { _ in }) {
+    private let size: CGFloat = 100
+    @State private var engine: CHHapticEngine?
+    
+    init(sides: Int, hapticsEnabled: Bool = false, completed: Binding<Bool>, onComplete: @escaping (Int) -> Void = { _ in }) {
         self.sides = sides
+        self.hapticsEnabled = hapticsEnabled
         self._completed = completed
         self.onComplete = onComplete
         array = [Int](1...sides).shuffled()
@@ -29,22 +34,39 @@ struct DieView: View {
         let size: CGFloat
         var offset: Bool = false
         var onComplete: (Int) -> Void
+        var hapticsEnabled: Bool
+        var playHaptics: (Float) -> Void
+        
+        private static var lastIndex = 0
         
         private let flips = 13.5
+        
+        var index: Int {
+            var index = Int(rotation * flips) % sides
+            if index < 0 { index = 0 }
+            return index
+        }
         
         var animatableData: Double {
             get { rotation }
             set {
                 rotation = newValue
-                if !offset && Int(flips) == Int(rotation * flips) {
-                    onComplete(array[Int(flips) % sides])
+                if !offset {
+                    if hapticsEnabled {
+                        let index = index
+                        if index != Self.lastIndex {
+                            playHaptics(Float(rotation * 0.6 + 0.4))
+                            Self.lastIndex = index
+                        }
+                    }
+                    if Int(flips) == Int(rotation * flips) {
+                        onComplete(array[index])
+                    }
                 }
             }
         }
         
         private var roll: Int {
-            var index = Int(rotation * flips + (offset ? 1 : 0)) % sides
-            if index < 0 { index = 0 }
             return array[index]
         }
         
@@ -80,7 +102,7 @@ struct DieView: View {
         Rectangle()
             .fill(.white)
             .frame(width: size, height: size)
-            .modifier(SideLabel(sides: sides, rotation: rotation, array: array, size: size, offset: offset, onComplete: onComplete))
+            .modifier(SideLabel(sides: sides, rotation: rotation, array: array, size: size, offset: offset, onComplete: onComplete, hapticsEnabled: hapticsEnabled, playHaptics: playHaptics))
             .animation(rotation == 0 ? nil : .easeOut(duration: 2))
             .overlay(offset ? Color.black.opacity(rotation * 0.25)
                      : Color.white.opacity(rotation * -0.5 + 0.5))
@@ -125,12 +147,42 @@ struct DieView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
         .onTapGesture {
+            if hapticsEnabled { prepareHaptics() }
             array.shuffle()
             rotation = 0
             completed = false
             withAnimation {
                 rotation = 1
             }
+        }
+    }
+    
+    func prepareHaptics() {
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+
+        do {
+            self.engine = try CHHapticEngine()
+            try engine?.start()
+        } catch {
+            print("There was an error creating the engine: \(error.localizedDescription)")
+        }
+    }
+    
+    func playHaptics(intensity: Float) {
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+        var events = [CHHapticEvent]()
+
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
+        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1)
+        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+        events.append(event)
+
+        do {
+            let pattern = try CHHapticPattern(events: events, parameters: [])
+            let player = try engine?.makePlayer(with: pattern)
+            try player?.start(atTime: 0)
+        } catch {
+            print("Failed to play pattern: \(error.localizedDescription).")
         }
     }
 }

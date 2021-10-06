@@ -15,12 +15,9 @@ struct ContentView: View {
         TabView {
             NavigationView {
                 VStack {
-                    DieView(sides: sides, completed: $completed) { roll in
-                        if !completed {
-                            UINotificationFeedbackGenerator().notificationOccurred(.success)
-                            completed = true
-                        }
-                    }
+                    DieView(sides: sides, hapticsEnabled: true, completed: $completed)
+                    DieView(sides: sides, completed: $completed)
+                    DieView(sides: sides, completed: $completed)
                 }
                 .navigationTitle("Dice Roll")
             }
