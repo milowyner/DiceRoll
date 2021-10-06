@@ -11,10 +11,14 @@ struct DieView: View {
     let sides: Int
     @State private var rotation = 0.0
     @State private var array: [Int]
+    @Binding var completed: Bool
+    let onComplete: (Int) -> Void
     private let size: CGFloat = 100
     
-    init(sides: Int) {
+    init(sides: Int, completed: Binding<Bool>, onComplete: @escaping (Int) -> Void = { _ in }) {
         self.sides = sides
+        self._completed = completed
+        self.onComplete = onComplete
         array = [Int](1...sides).shuffled()
     }
     
@@ -24,14 +28,22 @@ struct DieView: View {
         let array: [Int]
         let size: CGFloat
         var offset: Bool = false
+        var onComplete: (Int) -> Void
+        
+        private let flips = 13.5
         
         var animatableData: Double {
             get { rotation }
-            set { rotation = newValue }
+            set {
+                rotation = newValue
+                if !offset && Int(flips) == Int(rotation * flips) {
+                    onComplete(array[Int(flips) % sides])
+                }
+            }
         }
         
         private var roll: Int {
-            var index = Int(rotation * 15.5 + (offset ? 1 : 0)) % sides
+            var index = Int(rotation * flips + (offset ? 1 : 0)) % sides
             if index < 0 { index = 0 }
             return array[index]
         }
@@ -68,7 +80,7 @@ struct DieView: View {
         Rectangle()
             .fill(.white)
             .frame(width: size, height: size)
-            .modifier(SideLabel(sides: sides, rotation: rotation, array: array, size: size, offset: offset))
+            .modifier(SideLabel(sides: sides, rotation: rotation, array: array, size: size, offset: offset, onComplete: onComplete))
             .animation(rotation == 0 ? nil : .easeOut(duration: 2))
             .overlay(offset ? Color.black.opacity(rotation * 0.25)
                      : Color.white.opacity(rotation * -0.5 + 0.5))
@@ -115,6 +127,7 @@ struct DieView: View {
         .onTapGesture {
             array.shuffle()
             rotation = 0
+            completed = false
             withAnimation {
                 rotation = 1
             }

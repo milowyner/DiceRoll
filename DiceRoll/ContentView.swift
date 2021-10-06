@@ -9,12 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     private let sides = 6
+    @State private var completed = false
     
     var body: some View {
         TabView {
             NavigationView {
                 VStack {
-                    DieView(sides: sides)
+                    DieView(sides: sides, completed: $completed) { roll in
+                        if !completed {
+                            print("complete", roll)
+                            completed = true
+                        }
+                    }
                 }
                 .navigationTitle("Dice Roll")
             }
