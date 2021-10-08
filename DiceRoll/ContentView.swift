@@ -9,14 +9,17 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var sides = 6
+    @State private var dice = 1
     @State private var previousRolls = [Int]()
     
     var body: some View {
         TabView {
             NavigationView {
                 VStack {
-                    DieView(sides: sides, hapticsEnabled: true) { roll in
-                        previousRolls.insert(roll, at: 0)
+                    ForEach(1..<dice + 1, id: \.self) { die in
+                        DieView(sides: sides, hapticsEnabled: die == 1) { roll in
+                            previousRolls.insert(roll, at: 0)
+                        }
                     }
                 }
                 .navigationTitle("Dice Roll")
@@ -32,7 +35,7 @@ struct ContentView: View {
                     Text("Previous")
                 }
             
-            SettingsView(sides: $sides)
+            SettingsView(sides: $sides, dice: $dice)
                 .tabItem {
                     Image(systemName: "gearshape")
                     Text("Settings")
