@@ -13,18 +13,16 @@ struct DieView: View {
     @State private var rotation = 0.0
     @State private var array: [Int]
     var hapticsEnabled: Bool
-    @Binding var completed: Bool
     let onComplete: (Int) -> Void
     
     private let size: CGFloat = 100
     @State private var engine: CHHapticEngine?
     
-    init(sides: Int, hapticsEnabled: Bool = false, completed: Binding<Bool>, onComplete: @escaping (Int) -> Void = { _ in }) {
+    init(sides: Int, hapticsEnabled: Bool = false, onComplete: @escaping (Int) -> Void = { _ in }) {
         self.sides = sides
         self.hapticsEnabled = hapticsEnabled
-        self._completed = completed
         self.onComplete = onComplete
-        array = [Int](1...sides).shuffled()
+        array = [Int](1...sides)
     }
     
     private struct SideLabel: AnimatableModifier {
@@ -33,16 +31,16 @@ struct DieView: View {
         let array: [Int]
         let size: CGFloat
         var offset: Bool = false
-        var onComplete: (Int) -> Void
-        var hapticsEnabled: Bool
-        var playHaptics: (Float) -> Void
+        let onComplete: (Int) -> Void
+        let hapticsEnabled: Bool
+        let playHaptics: (Float) -> Void
         
         private static var lastIndex = 0
         
         private let flips = 13.5
         
         var index: Int {
-            var index = Int(rotation * flips) % sides
+            var index = Int(rotation * flips + Double(sides - 1)) % sides
             if index < 0 { index = 0 }
             return index
         }
@@ -52,22 +50,22 @@ struct DieView: View {
             set {
                 rotation = newValue
                 if !offset {
-                    if hapticsEnabled {
-                        let index = index
-                        if index != Self.lastIndex {
+                    let index = index
+                    if index != Self.lastIndex {
+                        if hapticsEnabled {
                             playHaptics(Float(rotation * 0.6 + 0.4))
-                            Self.lastIndex = index
                         }
-                    }
-                    if Int(flips) == Int(rotation * flips) {
-                        onComplete(array[index])
+                        if Int(flips) == Int(rotation * flips) {
+                            onComplete(array[index])
+                        }
+                        Self.lastIndex = index
                     }
                 }
             }
         }
         
         private var roll: Int {
-            return array[index]
+            array.count == sides ? array[index] : sides
         }
         
         func body(content: Content) -> some View {
@@ -148,9 +146,8 @@ struct DieView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             if hapticsEnabled { prepareHaptics() }
-            array.shuffle()
+            array = [Int](1...sides).shuffled()
             rotation = 0
-            completed = false
             withAnimation {
                 rotation = 1
             }

@@ -8,19 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
-    private let sides = 6
-    @State private var completed = false
+    @State private var sides = 6
     @State private var previousRolls = [Int]()
     
     var body: some View {
         TabView {
             NavigationView {
                 VStack {
-                    DieView(sides: sides, hapticsEnabled: true, completed: $completed) { roll in
-                        if !completed {
-                            previousRolls.insert(roll, at: 0)
-                            completed = true
-                        }
+                    DieView(sides: sides, hapticsEnabled: true) { roll in
+                        previousRolls.insert(roll, at: 0)
                     }
                 }
                 .navigationTitle("Dice Roll")
@@ -29,16 +25,18 @@ struct ContentView: View {
                 Image(systemName: "die.face.3")
                 Text("Roll")
             }
-            NavigationView {
-                List(previousRolls, id: \.self) { roll in
-                    Text("\(roll)")
+            
+            PreviousRollsView(previousRolls: previousRolls)
+                .tabItem {
+                    Image(systemName: "dice")
+                    Text("Previous")
                 }
-                .navigationTitle("Previous Rolls")
-            }
-            .tabItem {
-                Image(systemName: "dice")
-                Text("Previous")
-            }
+            
+            SettingsView(sides: $sides)
+                .tabItem {
+                    Image(systemName: "gearshape")
+                    Text("Settings")
+                }
         }
     }
 }
