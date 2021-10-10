@@ -10,30 +10,18 @@ import CoreHaptics
 
 struct DieView: View {
     @ObservedObject var die: Die
-//    let sides: Int = 1
     let rotation: Double
     let delay: Double
     var hapticsEnabled: Bool
     let onComplete: (Int) -> Void
     
-//    @State private var array: [Int] = []
     @State private var engine: CHHapticEngine?
     
     private let size: CGFloat = 100
     
-//    init(sides: Int, rotation: Double, delay: Double, hapticsEnabled: Bool = false, onComplete: @escaping (Int) -> Void = { _ in }) {
-//        self.sides = sides
-//        self.rotation = rotation
-//        self.delay = delay
-//        self.hapticsEnabled = hapticsEnabled
-//        self.onComplete = onComplete
-//        array = [Int](1...sides)
-//    }
-    
     private struct SideLabel: AnimatableModifier {
-        let sides: Int
+        @ObservedObject var die: Die
         var rotation: Double
-        let array: [Int]
         let size: CGFloat
         var offset: Bool = false
         let onComplete: (Int) -> Void
@@ -48,7 +36,7 @@ struct DieView: View {
         private let flips = 13.5
         
         var index: Int {
-            var index = Int(rotation * flips + Double(sides - 1) + (offset ? 1 : 0)) % sides
+            var index = Int(rotation * flips + Double(die.sides.count - 1) + (offset ? 1 : 0)) % die.sides.count
             if index < 0 { index = 0 }
             return index
         }
@@ -64,7 +52,7 @@ struct DieView: View {
                             playHaptics(Float(rotation * 0.6 + 0.4))
                         }
                         if Int(flips) == Int(rotation * flips) {
-                            onComplete(array[index])
+                            onComplete(die.sides[index])
                         }
                         lastIndex.value = index
                     }
@@ -73,11 +61,11 @@ struct DieView: View {
         }
         
         private var roll: Int {
-            array.count == sides ? array[index] : sides
+            die.sides[index]
         }
         
         func body(content: Content) -> some View {
-            if sides <= 6 {
+            if die.sides.count <= 6 {
                 content.overlay(
                     Image(systemName: "die.face.\(roll).fill")
                         .resizable()
@@ -108,7 +96,7 @@ struct DieView: View {
         Rectangle()
             .fill(.white)
             .frame(width: size, height: size)
-            .modifier(SideLabel(sides: die.sides.count, rotation: rotation, array: die.sides, size: size, offset: offset, onComplete: onComplete, hapticsEnabled: hapticsEnabled, playHaptics: playHaptics))
+            .modifier(SideLabel(die: die, rotation: rotation, size: size, offset: offset, onComplete: onComplete, hapticsEnabled: hapticsEnabled, playHaptics: playHaptics))
             .animation(rotation == 0 ? nil : .easeOut(duration: 2).delay(delay))
             .overlay(offset ? Color.black.opacity(rotation * 0.25)
                      : Color.white.opacity(rotation * -0.5 + 0.5))
