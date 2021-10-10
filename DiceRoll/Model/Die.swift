@@ -9,9 +9,11 @@ import Foundation
 
 class Die: Identifiable, ObservableObject {
     @Published var sides: [Int]
+    var faceIndex: Int
     
     init(sides: Int) {
         self.sides = Array(1..<sides + 1)
+        faceIndex = sides - 1
     }
     
     func rolled() -> Die {

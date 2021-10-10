@@ -24,20 +24,12 @@ struct DieView: View {
         let onComplete: (Int) -> Void
         let onFlip: ((Double) -> Void)?
         
-        class LastIndex {
-            var value = 0
-        }
-        var lastIndex = LastIndex()
-        
         private let flips = 13.5
         
         var index: Int {
-            // Testing with making the index always end on the last index of array so the die will start by showing the number of sides. Only issue is the onComplete function is called a bunch of times.
-//            let sides = die.sides.count
-//            let flip = sides - Int(flips) + Int(rotation * flips) + (offset ? 1 : 0)
-//            let index = (flip % sides + sides - 1) % sides
-            var index = Int(rotation * flips + Double(die.sides.count - 1) + (offset ? 1 : 0)) % die.sides.count
-            if index < 0 { index = 0 }
+            let sides = die.sides.count
+            let flip = sides - Int(flips) + Int(rotation * flips) + (offset ? 1 : 0)
+            let index = (flip % sides + sides - 1) % sides
             return index
         }
         
@@ -47,13 +39,13 @@ struct DieView: View {
                 rotation = newValue
                 if !offset {
                     let index = index
-                    if index != lastIndex.value {
+                    if index != die.faceIndex {
                         if Int(flips) == Int(rotation * flips) {
                             onComplete(die.sides[index])
                         } else {
                             onFlip?(rotation)
                         }
-                        lastIndex.value = index
+                        die.faceIndex = index
                     }
                 }
             }
