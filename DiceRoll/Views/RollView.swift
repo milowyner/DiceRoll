@@ -6,21 +6,24 @@
 //
 
 import SwiftUI
+import CoreHaptics
 
 struct RollView: View {
     @ObservedObject var holder: DiceHolder
     @State private var currentRoll = [Int]()
     @Binding var previousRolls: [[Int]]
     
-    @State private var rotation = 0.0
+    @State private var rotation = 1.0
+    @State private var engine: CHHapticEngine?
     
     var body: some View {
         NavigationView {
             VStack {
                 ForEach(0..<holder.numberOfDice, id: \.self) { dieIndex in
-                    DieView(die: holder.dice[dieIndex], rotation: rotation, delay: Double(dieIndex) * 0.25, hapticsEnabled: /*die == 0*/ false) { roll in
+                    DieView(die: holder.dice[dieIndex], rotation: rotation, delay: Double(dieIndex) * 0.25, onFlip: onFlip(dieIndex)) { roll in
                         DispatchQueue.main.async {
                             currentRoll.append(roll)
+                            playHaptics(intensity: 0.6)
                             
                             if dieIndex == holder.numberOfDice - 1 {
                                 previousRolls.insert(currentRoll, at: 0)
@@ -32,8 +35,7 @@ struct RollView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-//                prepareHaptics()
-//                array = [Int](1...sides).shuffled()
+                prepareHaptics()
                 holder.rollDice()
                 rotation = 0
                 withAnimation {
@@ -41,6 +43,41 @@ struct RollView: View {
                 }
             }
             .navigationTitle("Dice Roll")
+        }
+    }
+    
+    func onFlip(_ dieIndex: Int) -> ((Double) -> Void)? {
+        dieIndex == 0 ? { rotation in
+            playHaptics(intensity: Double(rotation) * 0.3 + 0.3)
+        } : nil
+    }
+    
+    func prepareHaptics() {
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+
+        do {
+            self.engine = try CHHapticEngine()
+            try engine?.start()
+        } catch {
+            print("There was an error creating the engine: \(error.localizedDescription)")
+        }
+    }
+    
+    func playHaptics(intensity: Double, sharpness: Double = 1.0) {
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+        var events = [CHHapticEvent]()
+
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(intensity))
+        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(sharpness))
+        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+        events.append(event)
+
+        do {
+            let pattern = try CHHapticPattern(events: events, parameters: [])
+            let player = try engine?.makePlayer(with: pattern)
+            try player?.start(atTime: 0)
+        } catch {
+            print("Failed to play pattern: \(error.localizedDescription).")
         }
     }
 }

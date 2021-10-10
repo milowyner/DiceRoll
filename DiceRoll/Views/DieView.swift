@@ -6,27 +6,23 @@
 //
 
 import SwiftUI
-import CoreHaptics
 
 struct DieView: View {
     @ObservedObject var die: Die
     let rotation: Double
     let delay: Double
-    var hapticsEnabled: Bool
+    var onFlip: ((Double) -> Void)?
     let onComplete: (Int) -> Void
-    
-    @State private var engine: CHHapticEngine?
     
     private let size: CGFloat = 100
     
     private struct SideLabel: AnimatableModifier {
-        @ObservedObject var die: Die
+        let die: Die
         var rotation: Double
         let size: CGFloat
         var offset: Bool = false
         let onComplete: (Int) -> Void
-        let hapticsEnabled: Bool
-        let playHaptics: (Float) -> Void
+        let onFlip: ((Double) -> Void)?
         
         class LastIndex {
             var value = 0
@@ -36,6 +32,10 @@ struct DieView: View {
         private let flips = 13.5
         
         var index: Int {
+            // Testing with making the index always end on the last index of array so the die will start by showing the number of sides. Only issue is the onComplete function is called a bunch of times.
+//            let sides = die.sides.count
+//            let flip = sides - Int(flips) + Int(rotation * flips) + (offset ? 1 : 0)
+//            let index = (flip % sides + sides - 1) % sides
             var index = Int(rotation * flips + Double(die.sides.count - 1) + (offset ? 1 : 0)) % die.sides.count
             if index < 0 { index = 0 }
             return index
@@ -48,11 +48,10 @@ struct DieView: View {
                 if !offset {
                     let index = index
                     if index != lastIndex.value {
-                        if hapticsEnabled {
-                            playHaptics(Float(rotation * 0.6 + 0.4))
-                        }
                         if Int(flips) == Int(rotation * flips) {
                             onComplete(die.sides[index])
+                        } else {
+                            onFlip?(rotation)
                         }
                         lastIndex.value = index
                     }
@@ -96,7 +95,7 @@ struct DieView: View {
         Rectangle()
             .fill(.white)
             .frame(width: size, height: size)
-            .modifier(SideLabel(die: die, rotation: rotation, size: size, offset: offset, onComplete: onComplete, hapticsEnabled: hapticsEnabled, playHaptics: playHaptics))
+            .modifier(SideLabel(die: die, rotation: rotation, size: size, offset: offset, onComplete: onComplete, onFlip: onFlip))
             .animation(rotation == 0 ? nil : .easeOut(duration: 2).delay(delay))
             .overlay(offset ? Color.black.opacity(rotation * 0.25)
                      : Color.white.opacity(rotation * -0.5 + 0.5))
@@ -139,35 +138,6 @@ struct DieView: View {
 //        .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
         .shadow(color: Color(white: 0.5), radius: 70, x: size / 2, y: size / 4)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    func prepareHaptics() {
-        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
-
-        do {
-            self.engine = try CHHapticEngine()
-            try engine?.start()
-        } catch {
-            print("There was an error creating the engine: \(error.localizedDescription)")
-        }
-    }
-    
-    func playHaptics(intensity: Float) {
-        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
-        var events = [CHHapticEvent]()
-
-        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
-        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1)
-        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
-        events.append(event)
-
-        do {
-            let pattern = try CHHapticPattern(events: events, parameters: [])
-            let player = try engine?.makePlayer(with: pattern)
-            try player?.start(atTime: 0)
-        } catch {
-            print("Failed to play pattern: \(error.localizedDescription).")
-        }
     }
 }
 
