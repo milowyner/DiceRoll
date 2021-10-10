@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Binding var sides: Int
-    @Binding var dice: Int
+    @ObservedObject var holder: DiceHolder
     private let sidesOptions = [4, 6, 8, 10, 12, 20, 100]
     private let diceOptions = [1, 2, 3]
     
@@ -19,7 +18,7 @@ struct SettingsView: View {
                 HStack {
                     Text("Dice Type")
                     Spacer()
-                    Picker("", selection: $sides) {
+                    Picker("", selection: $holder.numberOfSides) {
                         ForEach(sidesOptions, id: \.self) { sides in
                             Text("\(sides)-sided").tag(sides)
                         }
@@ -30,7 +29,7 @@ struct SettingsView: View {
                 HStack {
                     Text("Number of Dice")
                     Spacer()
-                    Picker("", selection: $dice) {
+                    Picker("", selection: $holder.numberOfDice) {
                         ForEach(diceOptions, id: \.self) { dice in
                             Text("\(dice) di\(dice > 1 ? "c" : "")e").tag(dice)
                         }
@@ -45,6 +44,6 @@ struct SettingsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView(sides: .constant(6), dice: .constant(1))
+        SettingsView(holder: DiceHolder())
     }
 }

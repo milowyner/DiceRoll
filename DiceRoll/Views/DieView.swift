@@ -9,25 +9,26 @@ import SwiftUI
 import CoreHaptics
 
 struct DieView: View {
-    let sides: Int
+    @ObservedObject var die: Die
+//    let sides: Int = 1
     let rotation: Double
     let delay: Double
     var hapticsEnabled: Bool
     let onComplete: (Int) -> Void
     
-    @State private var array: [Int]
+//    @State private var array: [Int] = []
     @State private var engine: CHHapticEngine?
     
     private let size: CGFloat = 100
     
-    init(sides: Int, rotation: Double, delay: Double, hapticsEnabled: Bool = false, onComplete: @escaping (Int) -> Void = { _ in }) {
-        self.sides = sides
-        self.rotation = rotation
-        self.delay = delay
-        self.hapticsEnabled = hapticsEnabled
-        self.onComplete = onComplete
-        array = [Int](1...sides)
-    }
+//    init(sides: Int, rotation: Double, delay: Double, hapticsEnabled: Bool = false, onComplete: @escaping (Int) -> Void = { _ in }) {
+//        self.sides = sides
+//        self.rotation = rotation
+//        self.delay = delay
+//        self.hapticsEnabled = hapticsEnabled
+//        self.onComplete = onComplete
+//        array = [Int](1...sides)
+//    }
     
     private struct SideLabel: AnimatableModifier {
         let sides: Int
@@ -107,7 +108,7 @@ struct DieView: View {
         Rectangle()
             .fill(.white)
             .frame(width: size, height: size)
-            .modifier(SideLabel(sides: sides, rotation: rotation, array: array, size: size, offset: offset, onComplete: onComplete, hapticsEnabled: hapticsEnabled, playHaptics: playHaptics))
+            .modifier(SideLabel(sides: die.sides.count, rotation: rotation, array: die.sides, size: size, offset: offset, onComplete: onComplete, hapticsEnabled: hapticsEnabled, playHaptics: playHaptics))
             .animation(rotation == 0 ? nil : .easeOut(duration: 2).delay(delay))
             .overlay(offset ? Color.black.opacity(rotation * 0.25)
                      : Color.white.opacity(rotation * -0.5 + 0.5))

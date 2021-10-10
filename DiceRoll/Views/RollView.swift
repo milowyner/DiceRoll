@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct RollView: View {
-    let sides: Int
-    let dice: Int
+    @ObservedObject var holder: DiceHolder
     @State private var currentRoll = [Int]()
     @Binding var previousRolls: [[Int]]
     
@@ -18,12 +17,12 @@ struct RollView: View {
     var body: some View {
         NavigationView {
             VStack {
-                ForEach(0..<dice, id: \.self) { die in
-                    DieView(sides: sides, rotation: rotation, delay: Double(die) * 0.5, hapticsEnabled: /*die == 0*/ false) { roll in
+                ForEach(0..<holder.numberOfDice, id: \.self) { dieIndex in
+                    DieView(die: holder.dice[dieIndex], rotation: rotation, delay: Double(dieIndex) * 0.25, hapticsEnabled: /*die == 0*/ false) { roll in
                         DispatchQueue.main.async {
                             currentRoll.append(roll)
                             
-                            if die == dice - 1 {
+                            if dieIndex == holder.numberOfDice - 1 {
                                 previousRolls.insert(currentRoll, at: 0)
                                 currentRoll = []
                             }
@@ -35,6 +34,7 @@ struct RollView: View {
             .onTapGesture {
 //                prepareHaptics()
 //                array = [Int](1...sides).shuffled()
+                holder.rollDice()
                 rotation = 0
                 withAnimation {
                     rotation = 1

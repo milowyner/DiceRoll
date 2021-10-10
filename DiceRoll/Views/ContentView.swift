@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var sides = 6
-    @State private var dice = 1
+    @StateObject private var diceHolder = DiceHolder()
     @State private var previousRolls = [[Int]]()
     
     var body: some View {
         TabView {
-            RollView(sides: sides, dice: dice, previousRolls: $previousRolls)
+            RollView(holder: diceHolder, previousRolls: $previousRolls)
                 .tabItem {
                     Image(systemName: "die.face.3")
                     Text("Roll")
@@ -26,7 +25,7 @@ struct ContentView: View {
                     Text("Previous")
                 }
             
-            SettingsView(sides: $sides, dice: $dice)
+            SettingsView(holder: diceHolder)
                 .tabItem {
                     Image(systemName: "gearshape")
                     Text("Settings")
