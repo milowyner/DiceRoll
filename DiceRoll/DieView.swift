@@ -10,16 +10,20 @@ import CoreHaptics
 
 struct DieView: View {
     let sides: Int
-    @State private var rotation = 0.0
-    @State private var array: [Int]
+    let rotation: Double
+    let delay: Double
     var hapticsEnabled: Bool
     let onComplete: (Int) -> Void
     
-    private let size: CGFloat = 100
+    @State private var array: [Int]
     @State private var engine: CHHapticEngine?
     
-    init(sides: Int, hapticsEnabled: Bool = false, onComplete: @escaping (Int) -> Void = { _ in }) {
+    private let size: CGFloat = 100
+    
+    init(sides: Int, rotation: Double, delay: Double, hapticsEnabled: Bool = false, onComplete: @escaping (Int) -> Void = { _ in }) {
         self.sides = sides
+        self.rotation = rotation
+        self.delay = delay
         self.hapticsEnabled = hapticsEnabled
         self.onComplete = onComplete
         array = [Int](1...sides)
@@ -35,12 +39,15 @@ struct DieView: View {
         let hapticsEnabled: Bool
         let playHaptics: (Float) -> Void
         
-        private static var lastIndex = 0
+        class LastIndex {
+            var value = 0
+        }
+        var lastIndex = LastIndex()
         
         private let flips = 13.5
         
         var index: Int {
-            var index = Int(rotation * flips + Double(sides - 1)) % sides
+            var index = Int(rotation * flips + Double(sides - 1) + (offset ? 1 : 0)) % sides
             if index < 0 { index = 0 }
             return index
         }
@@ -51,14 +58,14 @@ struct DieView: View {
                 rotation = newValue
                 if !offset {
                     let index = index
-                    if index != Self.lastIndex {
+                    if index != lastIndex.value {
                         if hapticsEnabled {
                             playHaptics(Float(rotation * 0.6 + 0.4))
                         }
                         if Int(flips) == Int(rotation * flips) {
                             onComplete(array[index])
                         }
-                        Self.lastIndex = index
+                        lastIndex.value = index
                     }
                 }
             }
@@ -101,7 +108,7 @@ struct DieView: View {
             .fill(.white)
             .frame(width: size, height: size)
             .modifier(SideLabel(sides: sides, rotation: rotation, array: array, size: size, offset: offset, onComplete: onComplete, hapticsEnabled: hapticsEnabled, playHaptics: playHaptics))
-            .animation(rotation == 0 ? nil : .easeOut(duration: 2))
+            .animation(rotation == 0 ? nil : .easeOut(duration: 2).delay(delay))
             .overlay(offset ? Color.black.opacity(rotation * 0.25)
                      : Color.white.opacity(rotation * -0.5 + 0.5))
             .rotation3DEffect(
@@ -111,7 +118,7 @@ struct DieView: View {
                 anchorZ: 0, perspective: 1
             )
             .offset(x: rotation * size - (offset ? 0 : size))
-            .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
+            .animation(rotation == 0 ? nil : .easeInOut(duration: 2).delay(delay))
     }
     
     // Used to make the die not appear to shrink when rotating
@@ -143,15 +150,6 @@ struct DieView: View {
 //        .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
         .shadow(color: Color(white: 0.5), radius: 70, x: size / 2, y: size / 4)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if hapticsEnabled { prepareHaptics() }
-            array = [Int](1...sides).shuffled()
-            rotation = 0
-            withAnimation {
-                rotation = 1
-            }
-        }
     }
     
     func prepareHaptics() {

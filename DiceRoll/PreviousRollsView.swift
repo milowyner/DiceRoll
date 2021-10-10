@@ -8,12 +8,16 @@
 import SwiftUI
 
 struct PreviousRollsView: View {
-    let previousRolls: [Int]
+    let previousRolls: [[Int]]
     
     var body: some View {
         NavigationView {
             List(previousRolls, id: \.self) { roll in
-                Text("\(roll)")
+                HStack {
+                    ForEach(roll, id: \.self) { die in
+                        Text("\(die)")
+                    }
+                }
             }
             .navigationTitle("Previous Rolls")
         }
