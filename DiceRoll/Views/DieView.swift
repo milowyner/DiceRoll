@@ -26,11 +26,28 @@ struct DieView: View {
         
         private let flips = 13.5
         
-        var index: Int {
+        private var index: Int {
             let sides = die.sides.count
             let flip = (Int(rotation * flips) + sides - 1) - (offset ? 0 : 1)
             let index = (flip % sides + sides) % sides
             return index
+        }
+        
+        private var roll: Int {
+            die.sides[index]
+        }
+        
+        private var finalSideShowing: Bool {
+            Int(flips) == Int(rotation * flips)
+        }
+        
+        // Gives a random 90 degree rotation to the die face during animation
+        private var faceAngle: Angle {
+            if finalSideShowing && (die.sides.count > 6 || roll == 6) {
+                return .zero
+            } else {
+                return .degrees(Double((die.sides[0] + Int(rotation * flips)) % 4) * 90 - 90)
+            }
         }
         
         var animatableData: Double {
@@ -40,7 +57,7 @@ struct DieView: View {
                 if !offset {
                     let index = index
                     if index != die.faceIndex {
-                        if Int(flips) == Int(rotation * flips) {
+                        if finalSideShowing {
                             onComplete(die.sides[index])
                         } else {
                             onFlip?(rotation)
@@ -51,10 +68,6 @@ struct DieView: View {
             }
         }
         
-        private var roll: Int {
-            die.sides[index]
-        }
-        
         func body(content: Content) -> some View {
             if die.sides.count <= 6 {
                 content.overlay(
@@ -62,8 +75,7 @@ struct DieView: View {
                         .resizable()
                         .frame(width: size, height: size)
                         .foregroundColor(.white)
-                        // Randomly mirror the die face so it feels more natural
-                        .rotation3DEffect(.degrees((die.sides[0] + Int(rotation * flips)) % 2 == 0 ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+                        .rotationEffect(faceAngle)
                         .background(
                             Rectangle()
                                 .foregroundColor(Color(white: 0.2))
@@ -75,11 +87,12 @@ struct DieView: View {
             } else {
                 content.overlay(
                     Text("\(roll)")
-                        .font(.system(size: 60, weight: .semibold, design: .rounded))
+                        .font(.system(size: 60, weight: .medium, design: .rounded))
                         .minimumScaleFactor(0.5)
                         .allowsTightening(true)
                         .foregroundColor(Color(white: 0.2))
                         .padding(8)
+                        .rotationEffect(faceAngle)
                         .animation(nil)
                 )
             }
