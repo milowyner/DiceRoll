@@ -19,7 +19,7 @@ struct RollView: View {
         NavigationView {
             VStack {
                 ForEach(0..<holder.numberOfDice, id: \.self) { dieIndex in
-                    DieView(die: holder.dice[dieIndex], rotation: holder.rotation, delay: Double(dieIndex) * 0.25, onFlip: onFlip(dieIndex)) { roll in
+                    DieView(die: holder.dice[dieIndex], onFlip: onFlip(dieIndex)) { roll in
                         DispatchQueue.main.async {
                             results.append(roll)
                             playHaptics(intensity: 0.6)
@@ -36,11 +36,7 @@ struct RollView: View {
             .contentShape(Rectangle())
             .onTapGesture {
                 prepareHaptics()
-                holder.rollDice()
-                holder.rotation = 0
-                withAnimation {
-                    holder.rotation = 1
-                }
+                holder.rollDice(withDelay: 0.25)
             }
             .navigationTitle("Dice Roll")
         }

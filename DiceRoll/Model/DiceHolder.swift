@@ -15,7 +15,6 @@ class DiceHolder: ObservableObject {
         didSet { createDice() }
     }
     @Published var dice = [Die]()
-    @Published var rotation = 0.0
     
     init(sides: Int = 6, numberOfDice: Int = 1) {
         self.numberOfSides = sides
@@ -27,10 +26,13 @@ class DiceHolder: ObservableObject {
     private func createDice() {
         print("createDice")
         dice = (0..<numberOfDice).map { _ in Die(sides: numberOfSides) }
-        rotation = 0.0
     }
     
-    func rollDice() {
-        dice = dice.map { $0.rolled() }
+    func rollDice(withDelay delay: Double = 0) {
+        for i in 0..<dice.count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * delay) {
+                self.dice[i] = self.dice[i].rolled()
+            }
+        }
     }
 }

@@ -9,8 +9,6 @@ import SwiftUI
 
 struct DieView: View {
     @ObservedObject var die: Die
-    let rotation: Double
-    let delay: Double
     var onFlip: ((Double) -> Void)?
     let onComplete: (Int) -> Void
     
@@ -104,18 +102,18 @@ struct DieView: View {
         Rectangle()
             .fill(.white)
             .frame(width: size, height: size)
-            .modifier(SideLabel(die: die, rotation: rotation, size: size, offset: offset, onComplete: onComplete, onFlip: onFlip))
-            .animation(rotation == 0 ? nil : .easeOut(duration: 2).delay(delay))
-            .overlay(offset ? Color.black.opacity(rotation * 0.25)
-                     : Color.white.opacity(rotation * -0.5 + 0.5))
+            .modifier(SideLabel(die: die, rotation: die.rotation, size: size, offset: offset, onComplete: onComplete, onFlip: onFlip))
+            .animation(die.rotation == 0 ? nil : .easeOut(duration: 2))
+            .overlay(offset ? Color.black.opacity(die.rotation * 0.25)
+                     : Color.white.opacity(die.rotation * -0.5 + 0.5))
             .rotation3DEffect(
-                .degrees(rotation * 90 - (offset ? 0 : 90)),
+                .degrees(die.rotation * 90 - (offset ? 0 : 90)),
                 axis: (x: 0, y: 1, z: 0),
                 anchor: offset ? .leading : .trailing,
                 anchorZ: 0, perspective: 1
             )
-            .offset(x: rotation * size - (offset ? 0 : size))
-            .animation(rotation == 0 ? nil : .easeInOut(duration: 2).delay(delay))
+            .offset(x: die.rotation * size - (offset ? 0 : size))
+            .animation(die.rotation == 0 ? nil : .easeInOut(duration: 2))
     }
     
     // Used to make the die not appear to shrink when rotating

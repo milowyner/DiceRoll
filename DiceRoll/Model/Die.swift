@@ -5,10 +5,11 @@
 //  Created by Milo Wyner on 10/10/21.
 //
 
-import Foundation
+import SwiftUI
 
 class Die: Identifiable, ObservableObject {
     @Published var sides: [Int]
+    @Published var rotation = 0.0
     var faceIndex: Int
     
     init(sides: Int) {
@@ -18,6 +19,10 @@ class Die: Identifiable, ObservableObject {
     
     func rolled() -> Die {
         sides.shuffle()
+        rotation = 0
+        withAnimation {
+            rotation = 1
+        }
         return self
     }
 }
