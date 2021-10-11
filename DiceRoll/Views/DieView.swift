@@ -43,10 +43,11 @@ struct DieView: View {
         
         // Gives a random 90 degree rotation to the die face during animation
         private var faceAngle: Angle {
-            if finalSideShowing && (die.sides.count > 6 || roll == 6) {
+            let base = (die.sides[0] + Int(rotation * flips)) % 4
+            if finalSideShowing && (die.sides.count > 6 || roll == 6) || base == 3 {
                 return .zero
             } else {
-                return .degrees(Double((die.sides[0] + Int(rotation * flips)) % 4) * 90 - 90)
+                return .degrees(Double(base * 90 - 90))
             }
         }
         
@@ -87,11 +88,11 @@ struct DieView: View {
             } else {
                 content.overlay(
                     Text("\(roll)")
-                        .font(.system(size: 60, weight: .medium, design: .rounded))
-                        .minimumScaleFactor(0.5)
+                        .font(.system(size: 70, weight: .semibold, design: .rounded))
+                        .minimumScaleFactor(0.1)
                         .allowsTightening(true)
                         .foregroundColor(Color(white: 0.2))
-                        .padding(8)
+                        .padding(.horizontal, 8)
                         .rotationEffect(faceAngle)
                         .animation(nil)
                 )
