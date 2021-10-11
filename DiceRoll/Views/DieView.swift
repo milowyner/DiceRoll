@@ -62,11 +62,14 @@ struct DieView: View {
                         .resizable()
                         .frame(width: size, height: size)
                         .foregroundColor(.white)
+                        // Randomly mirror the die face so it feels more natural
+                        .rotation3DEffect(.degrees((die.sides[0] + Int(rotation * flips)) % 2 == 0 ? 180 : 0), axis: (x: 0, y: 1, z: 0))
                         .background(
                             Rectangle()
                                 .foregroundColor(Color(white: 0.2))
                                 .frame(width: size * 0.75, height: size * 0.75)
                         )
+                        .animation(nil)
                 )
                     .shadow(color: .clear, radius: 0)
             } else {
