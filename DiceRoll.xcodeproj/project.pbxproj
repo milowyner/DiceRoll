@@ -17,6 +17,7 @@
 		0556585D2710B1F60090D697 /* PreviousRollsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0556585C2710B1F60090D697 /* PreviousRollsView.swift */; };
 		058D2C8C2713536D0012F0DD /* Die.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058D2C8B2713536D0012F0DD /* Die.swift */; };
 		058D2C8F2713539D0012F0DD /* DiceHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058D2C8E2713539D0012F0DD /* DiceHolder.swift */; };
+		058D2C912714BAAE0012F0DD /* Roll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058D2C902714BAAD0012F0DD /* Roll.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		0556585C2710B1F60090D697 /* PreviousRollsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviousRollsView.swift; sourceTree = "<group>"; };
 		058D2C8B2713536D0012F0DD /* Die.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Die.swift; sourceTree = "<group>"; };
 		058D2C8E2713539D0012F0DD /* DiceHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiceHolder.swift; sourceTree = "<group>"; };
+		058D2C902714BAAD0012F0DD /* Roll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Roll.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 			children = (
 				058D2C8B2713536D0012F0DD /* Die.swift */,
 				058D2C8E2713539D0012F0DD /* DiceHolder.swift */,
+				058D2C902714BAAD0012F0DD /* Roll.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -176,6 +179,7 @@
 				058D2C8C2713536D0012F0DD /* Die.swift in Sources */,
 				0556585D2710B1F60090D697 /* PreviousRollsView.swift in Sources */,
 				05435E142710F41D00DFBCFA /* RollView.swift in Sources */,
+				058D2C912714BAAE0012F0DD /* Roll.swift in Sources */,
 				052A506227068F8D003E432E /* DiceRollApp.swift in Sources */,
 				058D2C8F2713539D0012F0DD /* DiceHolder.swift in Sources */,
 				052C5EC0270B9FAB008C3FF3 /* DieView.swift in Sources */,

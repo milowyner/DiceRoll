@@ -10,9 +10,9 @@ import CoreHaptics
 
 struct RollView: View {
     @ObservedObject var holder: DiceHolder
-    @Binding var previousRolls: [[Int]]
+    @Binding var previousRolls: [Roll]
     
-    @State private var currentRoll = [Int]()
+    @State private var results = [Int]()
     @State private var engine: CHHapticEngine?
         
     var body: some View {
@@ -21,12 +21,13 @@ struct RollView: View {
                 ForEach(0..<holder.numberOfDice, id: \.self) { dieIndex in
                     DieView(die: holder.dice[dieIndex], rotation: holder.rotation, delay: Double(dieIndex) * 0.25, onFlip: onFlip(dieIndex)) { roll in
                         DispatchQueue.main.async {
-                            currentRoll.append(roll)
+                            results.append(roll)
                             playHaptics(intensity: 0.6)
                             
                             if dieIndex == holder.numberOfDice - 1 {
-                                previousRolls.insert(currentRoll, at: 0)
-                                currentRoll = []
+                                let roll = Roll(sides: holder.numberOfSides, dice: holder.numberOfDice, results: results)
+                                previousRolls.insert(roll, at: 0)
+                                results = []
                             }
                         }
                     }

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var diceHolder = DiceHolder()
-    @State private var previousRolls = [[Int]]()
+    @State private var previousRolls = [Roll]()
     
     var body: some View {
         TabView {
