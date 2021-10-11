@@ -10,17 +10,16 @@ import CoreHaptics
 
 struct RollView: View {
     @ObservedObject var holder: DiceHolder
-    @State private var currentRoll = [Int]()
     @Binding var previousRolls: [[Int]]
     
-    @State private var rotation = 1.0
+    @State private var currentRoll = [Int]()
     @State private var engine: CHHapticEngine?
-    
+        
     var body: some View {
         NavigationView {
             VStack {
                 ForEach(0..<holder.numberOfDice, id: \.self) { dieIndex in
-                    DieView(die: holder.dice[dieIndex], rotation: rotation, delay: Double(dieIndex) * 0.25, onFlip: onFlip(dieIndex)) { roll in
+                    DieView(die: holder.dice[dieIndex], rotation: holder.rotation, delay: Double(dieIndex) * 0.25, onFlip: onFlip(dieIndex)) { roll in
                         DispatchQueue.main.async {
                             currentRoll.append(roll)
                             playHaptics(intensity: 0.6)
@@ -37,9 +36,9 @@ struct RollView: View {
             .onTapGesture {
                 prepareHaptics()
                 holder.rollDice()
-                rotation = 0
+                holder.rotation = 0
                 withAnimation {
-                    rotation = 1
+                    holder.rotation = 1
                 }
             }
             .navigationTitle("Dice Roll")

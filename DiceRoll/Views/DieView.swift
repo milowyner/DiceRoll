@@ -28,8 +28,8 @@ struct DieView: View {
         
         var index: Int {
             let sides = die.sides.count
-            let flip = sides - Int(flips) + Int(rotation * flips) + (offset ? 1 : 0)
-            let index = (flip % sides + sides - 1) % sides
+            let flip = (Int(rotation * flips) + sides - 1) - (offset ? 0 : 1)
+            let index = (flip % sides + sides) % sides
             return index
         }
         
