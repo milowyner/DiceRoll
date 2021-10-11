@@ -20,7 +20,6 @@ struct PreviousRollsView: View {
                             Text("Dice:")
                                 .foregroundColor(.secondary)
                             Text(roll.results.map(String.init).joined(separator: ", "))
-                                .foregroundColor(.secondary)
                             Spacer()
                         }
                     }
@@ -29,6 +28,7 @@ struct PreviousRollsView: View {
                         Text("Roll:")
                             .foregroundColor(.secondary)
                         Text("\(roll.results.reduce(0, +))")
+                            .font(.headline)
                         Spacer()
                         Text("\(roll.sides)-sided")
                             .foregroundColor(.secondary)
