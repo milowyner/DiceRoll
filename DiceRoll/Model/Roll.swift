@@ -11,6 +11,5 @@ struct Roll: Identifiable {
     let id = UUID()
     
     let sides: Int
-    let dice: Int
-    let results: [Int]
+    let dice: [Int]
 }

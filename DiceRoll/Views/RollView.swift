@@ -25,7 +25,7 @@ struct RollView: View {
                             playHaptics(intensity: 0.6)
                             
                             if dieIndex == holder.numberOfDice - 1 {
-                                let roll = Roll(sides: holder.numberOfSides, dice: holder.numberOfDice, results: results)
+                                let roll = Roll(sides: holder.numberOfSides, dice: results)
                                 previousRolls.insert(roll, at: 0)
                                 results = []
                             }

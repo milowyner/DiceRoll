@@ -14,12 +14,12 @@ struct PreviousRollsView: View {
         NavigationView {
             List(previousRolls) { roll in
                 ZStack {
-                    if roll.dice > 1 {
+                    if roll.dice.count > 1 {
                         HStack {
                             Spacer()
                             Text("Dice:")
                                 .foregroundColor(.secondary)
-                            Text(roll.results.map(String.init).joined(separator: ", "))
+                            Text(roll.dice.map(String.init).joined(separator: ", "))
                             Spacer()
                         }
                     }
@@ -27,7 +27,7 @@ struct PreviousRollsView: View {
                     HStack {
                         Text("Roll:")
                             .foregroundColor(.secondary)
-                        Text("\(roll.results.reduce(0, +))")
+                        Text("\(roll.dice.reduce(0, +))")
                             .font(.headline)
                         Spacer()
                         Text("\(roll.sides)-sided")
