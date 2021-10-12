@@ -9,17 +9,16 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var diceHolder = DiceHolder()
-    @State private var previousRolls = [Roll]()
     
     var body: some View {
         TabView {
-            RollView(holder: diceHolder, previousRolls: $previousRolls)
+            RollView(holder: diceHolder)
                 .tabItem {
                     Image(systemName: "die.face.3")
                     Text("Roll")
                 }
             
-            PreviousRollsView(previousRolls: previousRolls)
+            PreviousRollsView()
                 .tabItem {
                     Image(systemName: "dice")
                     Text("Previous")

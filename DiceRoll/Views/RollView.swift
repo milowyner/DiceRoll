@@ -9,8 +9,9 @@ import SwiftUI
 import CoreHaptics
 
 struct RollView: View {
+    @Environment(\.managedObjectContext) private var viewContext
+    
     @ObservedObject var holder: DiceHolder
-    @Binding var previousRolls: [Roll]
     
     @State private var results = [Int]()
     @State private var engine: CHHapticEngine?
@@ -25,8 +26,12 @@ struct RollView: View {
                             playHaptics(intensity: 0.6)
                             
                             if dieIndex == holder.numberOfDice - 1 {
-                                let roll = Roll(sides: holder.numberOfSides, dice: results)
-                                previousRolls.insert(roll, at: 0)
+                                let roll = Roll(context: viewContext)
+                                roll.sides = Int16(holder.numberOfSides)
+                                roll.dice = results
+                                roll.timestamp = Date()
+                                
+                                PersistenceController.shared.save()
                                 results = []
                             }
                         }
