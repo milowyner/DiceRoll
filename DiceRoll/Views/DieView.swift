@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct DieView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     @ObservedObject var die: Die
     var onFlip: ((Double) -> Void)?
     let onComplete: (Int) -> Void
@@ -15,6 +17,8 @@ struct DieView: View {
     private let size: CGFloat = 100
     
     private struct SideLabel: AnimatableModifier {
+        @Environment(\.colorScheme) var colorScheme
+        
         let die: Die
         var rotation: Double
         let size: CGFloat
@@ -73,11 +77,11 @@ struct DieView: View {
                     Image(systemName: "die.face.\(roll).fill")
                         .resizable()
                         .frame(width: size, height: size)
-                        .foregroundColor(.white)
+                        .foregroundColor(colorScheme == .light ? .white : Color(white: 0.15))
                         .rotationEffect(faceAngle)
                         .background(
                             Rectangle()
-                                .foregroundColor(Color(white: 0.2))
+                                .foregroundColor(colorScheme == .light ? Color(white: 0.2) : .white)
                                 .frame(width: size * 0.75, height: size * 0.75)
                         )
                         .animation(nil)
@@ -89,7 +93,7 @@ struct DieView: View {
                         .font(.system(size: 70, weight: .semibold, design: .rounded))
                         .minimumScaleFactor(0.1)
                         .allowsTightening(true)
-                        .foregroundColor(Color(white: 0.2))
+                        .foregroundColor(colorScheme == .light ? Color(white: 0.2) : .white)
                         .padding(.horizontal, 8)
                         .rotationEffect(faceAngle)
                         .animation(nil)
@@ -100,12 +104,15 @@ struct DieView: View {
     
     func sideView(offset: Bool = false) -> some View {
         Rectangle()
-            .fill(.white)
+            .fill(colorScheme == .light ? .white : Color(white: 0.15))
             .frame(width: size, height: size)
             .modifier(SideLabel(die: die, rotation: die.rotation, size: size, offset: offset, onComplete: onComplete, onFlip: onFlip))
             .animation(die.rotation == 0 ? nil : .easeOut(duration: 2))
-            .overlay(offset ? Color.black.opacity(die.rotation * 0.25)
-                     : Color.white.opacity(die.rotation * -0.5 + 0.5))
+            .overlay(offset
+                     ? (colorScheme == .light ? Color.black : Color.white)
+                        .opacity(die.rotation * 0.25)
+                     : (colorScheme == .light ? Color.white : Color.black)
+                        .opacity(die.rotation * -0.5 + 0.5))
             .rotation3DEffect(
                 .degrees(die.rotation * 90 - (offset ? 0 : 90)),
                 axis: (x: 0, y: 1, z: 0),
@@ -143,7 +150,7 @@ struct DieView: View {
         // Uncomment these to make the die not appear to shrink when rotating
 //        .modifier(ScaleEffect(scale: rotation))
 //        .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
-        .shadow(color: Color(white: 0.5), radius: 70, x: size / 2, y: size / 4)
+        .shadow(color: Color(white: 0.5).opacity(colorScheme == .light ? 1 : 0), radius: 70, x: size / 2, y: size / 4)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
