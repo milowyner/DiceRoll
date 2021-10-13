@@ -7,34 +7,63 @@
 
 import SwiftUI
 
+enum HapticsStrength: Double, CaseIterable, Identifiable {
+    case off = 0
+    case weak = 0.4
+    case normal = 0.6
+    case strong = 1.0
+
+    var id: Double { rawValue }
+    var strength: Double { rawValue }
+}
+
 struct SettingsView: View {
     @ObservedObject var holder: DiceHolder
+    @Binding var haptics: HapticsStrength
+    
     private let sidesOptions = [4, 6, 8, 10, 12, 20, 100]
     private let diceOptions = [1, 2, 3]
     
     var body: some View {
         NavigationView {
             Form {
-                HStack {
-                    Text("Dice Type")
-                    Spacer()
-                    Picker("", selection: $holder.numberOfSides) {
-                        ForEach(sidesOptions, id: \.self) { sides in
-                            Text("\(sides)-sided").tag(sides)
+                Section(header: Text("Dice Settings")) {
+                    HStack {
+                        Text("Dice Type")
+                        Spacer()
+                        Picker("", selection: $holder.numberOfSides) {
+                            ForEach(sidesOptions, id: \.self) { sides in
+                                Text("\(sides)-sided").tag(sides)
+                            }
                         }
+                        .pickerStyle(MenuPickerStyle())
                     }
-                    .pickerStyle(MenuPickerStyle())
+                    
+                    HStack {
+                        Text("Number of Dice")
+                        Spacer()
+                        Picker("", selection: $holder.numberOfDice) {
+                            ForEach(diceOptions, id: \.self) { dice in
+                                Text("\(dice) di\(dice > 1 ? "c" : "")e").tag(dice)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                    }
                 }
                 
-                HStack {
-                    Text("Number of Dice")
-                    Spacer()
-                    Picker("", selection: $holder.numberOfDice) {
-                        ForEach(diceOptions, id: \.self) { dice in
-                            Text("\(dice) di\(dice > 1 ? "c" : "")e").tag(dice)
+                Section(header: Text("Haptics Strength")) {
+                    VStack(alignment: .leading) {
+                        Picker("", selection: $haptics) {
+                            ForEach(HapticsStrength.allCases) { strength in
+                                Text(String(describing: strength).capitalized).tag(strength)
+                            }
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .onChange(of: haptics) { strength in
+                            UserDefaults.standard.set(strength.rawValue, forKey: "Haptics")
                         }
                     }
-                    .pickerStyle(MenuPickerStyle())
+                    .padding(.vertical, 6)
                 }
             }
             .navigationTitle("Settings")
@@ -44,6 +73,6 @@ struct SettingsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView(holder: DiceHolder())
+        SettingsView(holder: DiceHolder(), haptics: .constant(.normal))
     }
 }

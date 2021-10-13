@@ -9,10 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var diceHolder = DiceHolder()
+    @State private var haptics: HapticsStrength = {
+        if let value = UserDefaults.standard.value(forKey: "Haptics") as? Double,
+           let haptics = HapticsStrength(rawValue: value) {
+            return haptics
+        } else {
+            return .normal
+        }
+    }()
     
     var body: some View {
         TabView {
-            RollView(holder: diceHolder)
+            RollView(holder: diceHolder, haptics: $haptics)
                 .tabItem {
                     Image(systemName: "die.face.3")
                     Text("Roll")
@@ -24,7 +32,7 @@ struct ContentView: View {
                     Text("Previous")
                 }
             
-            SettingsView(holder: diceHolder)
+            SettingsView(holder: diceHolder, haptics: $haptics)
                 .tabItem {
                     Image(systemName: "gearshape")
                     Text("Settings")
