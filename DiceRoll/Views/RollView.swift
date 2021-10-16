@@ -16,6 +16,7 @@ struct RollView: View {
     
     @State private var results = [Int]()
     @State private var engine: CHHapticEngine?
+    @State private var rollStarted = false
     
     private func diceStack<T: RandomAccessCollection>(_ range: T) -> some View where T.Element == Int {
         VStack(spacing: 0) {
@@ -41,6 +42,7 @@ struct RollView: View {
                     
                     PersistenceController.shared.save()
                     results = []
+                    rollStarted = false
                 }
             }
         }
@@ -84,8 +86,11 @@ struct RollView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                prepareHaptics()
-                holder.rollDice(withDelay: 0.25)
+                if !rollStarted {
+                    rollStarted = true
+                    prepareHaptics()
+                    holder.rollDice(withDelay: 0.25)
+                }
             }
             .navigationTitle("Dice Roll")
         }
