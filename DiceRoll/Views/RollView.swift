@@ -16,28 +16,71 @@ struct RollView: View {
     
     @State private var results = [Int]()
     @State private var engine: CHHapticEngine?
+    
+    private func diceStack<T: RandomAccessCollection>(_ range: T) -> some View where T.Element == Int {
+        VStack(spacing: 0) {
+            Spacer()
+            ForEach(range, id: \.self) { dieIndex in
+                die(index: dieIndex)
+                Spacer()
+            }
+        }
+    }
+    
+    private func die(index: Int) -> some View {
+        DieView(die: holder.dice[index], onFlip: onFlip(index)) { result in
+            DispatchQueue.main.async {
+                results.append(result)
+                playHaptics(intensity: haptics.strength)
+                
+                if index == holder.numberOfDice - 1 {
+                    let roll = Roll(context: viewContext)
+                    roll.sides = Int16(holder.numberOfSides)
+                    roll.dice = results
+                    roll.timestamp = Date()
+                    
+                    PersistenceController.shared.save()
+                    results = []
+                }
+            }
+        }
+    }
         
     var body: some View {
         NavigationView {
-            VStack {
-                ForEach(0..<holder.numberOfDice, id: \.self) { dieIndex in
-                    DieView(die: holder.dice[dieIndex], onFlip: onFlip(dieIndex)) { roll in
-                        DispatchQueue.main.async {
-                            results.append(roll)
-                            playHaptics(intensity: haptics.strength)
-                            
-                            if dieIndex == holder.numberOfDice - 1 {
-                                let roll = Roll(context: viewContext)
-                                roll.sides = Int16(holder.numberOfSides)
-                                roll.dice = results
-                                roll.timestamp = Date()
-                                
-                                PersistenceController.shared.save()
-                                results = []
-                            }
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+                if holder.numberOfDice <= 3 {
+                    diceStack(0..<holder.numberOfDice)
+                } else if holder.numberOfDice % 2 == 0 {
+                    diceStack(0..<holder.numberOfDice / 2)
+                    Spacer()
+                    diceStack((holder.numberOfDice / 2..<holder.numberOfDice).reversed())
+                } else {
+                    // Manual layout when there are 5 dice
+                    VStack(spacing: 0) {
+                        Spacer()
+                        HStack(spacing: 0) {
+                            Spacer()
+                            die(index: 0)
+                            Spacer()
+                            die(index: 4)
+                            Spacer()
                         }
+                        Spacer()
+                        HStack(spacing: 0) {
+                            Spacer()
+                            die(index: 1)
+                            Spacer()
+                            die(index: 3)
+                            Spacer()
+                        }
+                        Spacer()
+                        die(index: 2)
+                        Spacer()
                     }
                 }
+                Spacer(minLength: 0)
             }
             .contentShape(Rectangle())
             .onTapGesture {

@@ -22,7 +22,7 @@ struct SettingsView: View {
     @Binding var haptics: HapticsStrength
     
     private let sidesOptions = [4, 6, 8, 10, 12, 20, 100]
-    private let diceOptions = [1, 2, 3]
+    private let diceOptions = [1, 2, 3, 4, 5, 6]
     
     var body: some View {
         NavigationView {
@@ -39,20 +39,23 @@ struct SettingsView: View {
                         .pickerStyle(MenuPickerStyle())
                     }
                     
-                    HStack {
+                    VStack(alignment: .leading) {
                         Text("Number of Dice")
-                        Spacer()
                         Picker("", selection: $holder.numberOfDice) {
                             ForEach(diceOptions, id: \.self) { dice in
-                                Text("\(dice) di\(dice > 1 ? "c" : "")e").tag(dice)
+                                Text("\(dice)").tag(dice)
                             }
                         }
-                        .pickerStyle(MenuPickerStyle())
+                        .pickerStyle(SegmentedPickerStyle())
+                        .onChange(of: haptics) { strength in
+                            UserDefaults.standard.set(strength.rawValue, forKey: "Haptics")
+                        }
                     }
+                    .padding(.vertical, 6)
                 }
                 
                 Section(header: Text("Haptics Strength")) {
-                    VStack(alignment: .leading) {
+                    VStack {
                         Picker("", selection: $haptics) {
                             ForEach(HapticsStrength.allCases) { strength in
                                 Text(String(describing: strength).capitalized).tag(strength)

@@ -151,7 +151,6 @@ struct DieView: View {
 //        .modifier(ScaleEffect(scale: rotation))
 //        .animation(rotation == 0 ? nil : .easeInOut(duration: 2))
         .shadow(color: Color(white: 0.5).opacity(colorScheme == .light ? 1 : 0), radius: 70, x: size / 2, y: size / 4)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
