@@ -30,6 +30,7 @@ class DiceHolder: ObservableObject {
     
     func rollDice(withDelay delay: Double = 0) {
         for i in 0..<dice.count {
+            // Divide delay by "Double(numberOfDice == 1 ? 1 : numberOfDice - 1)" to make the delay shorter the more dice there are
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * delay) {
                 self.dice[i] = self.dice[i].rolled()
             }
