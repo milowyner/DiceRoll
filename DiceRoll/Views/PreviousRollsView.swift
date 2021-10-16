@@ -19,26 +19,19 @@ struct PreviousRollsView: View {
     var body: some View {
         NavigationView {
             List(previousRolls) { roll in
-                ZStack {
-                    if roll.dice?.count ?? 0 > 1 {
-                        HStack {
-                            Spacer()
-                            Text("Dice:")
-                                .foregroundColor(.secondary)
-                            Text(roll.dice?.map(String.init).joined(separator: ", ") ?? "")
-                            Spacer()
-                        }
-                    }
-                    
-                    HStack {
-                        Text("Roll:")
+                HStack {
+                    Text("Roll:")
+                        .foregroundColor(.secondary)
+                    Text("\(roll.dice?.reduce(0, +) ?? 0)")
+                        .font(.headline)
+                        Text("Dice:")
                             .foregroundColor(.secondary)
-                        Text("\(roll.dice?.reduce(0, +) ?? 0)")
-                            .font(.headline)
-                        Spacer()
-                        Text("\(roll.sides)-sided")
-                            .foregroundColor(.secondary)
-                    }
+                            .padding(.leading, 8)
+                        Text(roll.dice?.map(String.init).joined(separator: ", ") ?? "")
+                            .padding(.trailing, 8)
+                    Spacer()
+                    Text("\(roll.sides)-sided")
+                        .foregroundColor(.secondary)
                 }
             }
             .alert(isPresented: $showingAlert) {
@@ -57,5 +50,12 @@ struct PreviousRollsView: View {
     private func clear() {
         previousRolls.forEach(viewContext.delete)
         PersistenceController.shared.save()
+    }
+}
+
+struct PreviousRollsView_Previews: PreviewProvider {
+    static var previews: some View {
+        PreviousRollsView()
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }

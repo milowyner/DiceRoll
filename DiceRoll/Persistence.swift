@@ -9,6 +9,25 @@ import CoreData
 
 struct PersistenceController {
     static let shared = PersistenceController()
+    
+    static var preview: PersistenceController = {
+        let result = PersistenceController(inMemory: true)
+        let viewContext = result.container.viewContext
+        for _ in 0..<10 {
+            let roll = Roll(context: viewContext)
+            let sides = [4, 6, 8, 10, 12, 20, 100].randomElement()!
+            roll.sides = Int16(sides)
+            roll.dice = Array(Array(1...sides).shuffled()[0...Int.random(in: 0...5)])
+            roll.timestamp = Date()
+        }
+        do {
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
+        return result
+    }()
 
     let container: NSPersistentContainer
 

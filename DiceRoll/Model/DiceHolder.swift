@@ -19,12 +19,10 @@ class DiceHolder: ObservableObject {
     init(sides: Int = 6, numberOfDice: Int = 1) {
         self.numberOfSides = sides
         self.numberOfDice = numberOfDice
-        print("init DiceHolder")
         createDice()
     }
     
     private func createDice() {
-        print("createDice")
         dice = (0..<numberOfDice).map { _ in Die(sides: numberOfSides) }
     }
     
