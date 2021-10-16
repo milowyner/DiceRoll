@@ -105,6 +105,7 @@ struct DieView: View {
     func sideView(offset: Bool = false) -> some View {
         Rectangle()
             .fill(colorScheme == .light ? .white : Color(white: 0.15))
+            .animation(nil)
             .frame(width: size, height: size)
             .modifier(SideLabel(die: die, rotation: die.rotation, size: size, offset: offset, onComplete: onComplete, onFlip: onFlip))
             .animation(die.rotation == 0 ? nil : .easeOut(duration: 2))
