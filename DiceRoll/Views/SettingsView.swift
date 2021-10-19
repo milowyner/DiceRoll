@@ -9,8 +9,8 @@ import SwiftUI
 
 enum HapticsStrength: Double, CaseIterable, Identifiable {
     case off = 0
-    case weak = 0.4
-    case normal = 0.6
+    case weak = 0.5
+    case normal = 0.75
     case strong = 1.0
 
     var id: Double { rawValue }
