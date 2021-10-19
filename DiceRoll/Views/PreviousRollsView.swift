@@ -24,15 +24,18 @@ struct PreviousRollsView: View {
                         .foregroundColor(.secondary)
                     Text("\(roll.dice?.reduce(0, +) ?? 0)")
                         .font(.headline)
+                    if roll.dice?.count ?? 0 > 1 {
                         Text("Dice:")
                             .foregroundColor(.secondary)
                             .padding(.leading, 8)
                         Text(roll.dice?.map(String.init).joined(separator: ", ") ?? "")
                             .padding(.trailing, 8)
+                    }
                     Spacer()
                     Text("\(roll.sides)-sided")
                         .foregroundColor(.secondary)
                 }
+                .padding(.trailing, 8)
             }
             .alert(isPresented: $showingAlert) {
                 Alert(title: Text("Clear previous rolls?"),
