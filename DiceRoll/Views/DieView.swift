@@ -46,7 +46,7 @@ struct DieView: View {
         // Gives a random 90 degree rotation to the die face during animation
         private var faceAngle: Angle {
             let base = (die.sides[0] + Int(rotation * flips)) % 4
-            if finalSideShowing && die.sides.count > 6 || die.sides.count == 6 && roll == 6 || base == 3 {
+            if finalSideShowing && (die.sides.count > 6 || roll == 6) || base == 3 {
                 return .zero
             } else {
                 return .degrees(Double(base * 90 - 90))
